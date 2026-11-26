@@ -12,6 +12,39 @@ em segundo plano, atendentes assumem, respondem e resolvem, e o admin acompanha 
 Este repositório traz um **harness** para que vários agentes trabalhem ao mesmo tempo, cada um na sua
 worktree: um comando sobe tudo, cada cópia é isolada e um comando de gates prova que nada quebrou.
 
+## O ciclo
+
+```mermaid
+graph LR
+  A["AGENTS.md"] --> U["npm run up"]
+  U --> C["Mudança no código<br/>(worktree da cópia)"]
+  C --> G["npm run gates"]
+  G -->|violação| C
+  G -->|passa| H["pre-commit<br/>(.githooks)"]
+  H -->|bloqueia| C
+  H -->|commit| V["caixa-preta<br/>+ npm run smoke"]
+  V -->|falha| C
+  V -->|passa| PR["Push / pull request"]
+  C -. erro do agente .-> I[("docs/incidentes.md")]
+  I -. nova regra, script ou doc .-> A
+  I -.-> G
+```
+
+| Peça | Lê | Produz |
+|---|---|---|
+| `AGENTS.md` | — | Índice: como subir, derrubar, rodar os gates, contas e regras de camada; aponta para `docs/` |
+| `npm run up` | `api/.env.example`, `.harness/estado.env` | Postgres, API, worker e front da cópia; `api/.env`, `web/.env.local`; endereços impressos |
+| `npm run gates` | `api/`, `web/`, configs das ferramentas | Lista final `<ID> <arquivo>` por violação; código 1 se algo falhar |
+| `.githooks/pre-commit` | o commit em andamento | Roda os gates (G1 tipos e G2 lint incluídos) e bloqueia o commit se falharem |
+| `blackbox/` | API da cópia (`API_URL`) | 51 testes do contrato HTTP |
+| `npm run smoke` | front da cópia | Login, triagem e anexo em Chromium headless |
+| `kit-gates/` | violações plantadas, uma por vez | `barrada` ou a lacuna da regra |
+| `docs/incidentes.md` | erros reais dos agentes | Mudança no harness (gate, hook, script ou doc) com o hash do commit |
+
+O agente só recebe a saída das ferramentas, não a opinião de quem escreveu as regras: a lista final dos
+gates diz o ID da regra e o arquivo, e `docs/gates.md` diz como corrigir. Quando um erro passa pelo ciclo,
+ele vira entrada em `docs/incidentes.md` e uma mudança no harness, para o próximo agente acertar de primeira.
+
 ## Como rodar
 
 **Pré-requisitos:** Linux ou macOS, Git, Docker (com `docker compose` v2) e Node.js LTS (22 ou superior).
