@@ -1,0 +1,4 @@
+// Aponta para a API da porta padrão, não para a API desta cópia.
+export function linkDeAjuda(topico: string): string {
+  return `http://127.0.0.1:4000/api/ajuda/${topico}`
+}

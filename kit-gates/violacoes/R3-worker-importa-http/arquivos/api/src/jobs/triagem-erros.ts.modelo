@@ -1,0 +1,6 @@
+import { HttpError } from '../http/errors'
+
+// O worker é outro processo: ele não deve depender da camada HTTP da API.
+export function falhaDeTriagem(motivo: string): HttpError {
+  return new HttpError(500, 'triage_failed', motivo)
+}

@@ -1,0 +1,6 @@
+import path from 'path'
+
+// Duas worktrees escreveriam na mesma pasta: o endereço tem de vir de config/.
+export function caminhoDaExportacao(nome: string): string {
+  return path.join('/tmp/balcao/exportacoes', nome)
+}

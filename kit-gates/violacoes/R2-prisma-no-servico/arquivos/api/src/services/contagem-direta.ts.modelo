@@ -1,0 +1,8 @@
+import { PrismaClient } from '@prisma/client'
+
+// Um segundo PrismaClient, fora de repositories/, ignorando a URL de banco desta cópia.
+const banco = new PrismaClient()
+
+export async function contarUsuarios(): Promise<number> {
+  return banco.user.count()
+}
