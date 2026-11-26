@@ -1,8 +1,11 @@
 import { defineConfig } from 'vitest/config'
 
+// Sem .env (clone novo, gates), os testes de integração apenas não acham o banco.
 try {
   process.loadEnvFile('.env')
-} catch {}
+} catch {
+  // ignora: .env é opcional aqui
+}
 
 export default defineConfig({
   test: {

@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { aiConfig } from '../config/env'
 import { TICKET_CATEGORIES, TICKET_PRIORITIES, TicketCategory, TicketPriority } from '../domain/ticket'
 
 export type Classification = {
@@ -48,7 +49,7 @@ export function suggestReplyFake(input: { customerName: string; title: string })
 }
 
 function openaiClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  return new OpenAI({ apiKey: aiConfig().OPENAI_API_KEY })
 }
 
 async function classifyWithOpenAI(ticket: TicketInput): Promise<Classification> {
@@ -65,22 +66,23 @@ async function classifyWithOpenAI(ticket: TicketInput): Promise<Classification> 
       { role: 'user', content: `Título: ${ticket.title}\n\nDescrição: ${ticket.description}` },
     ],
   })
-  const data = JSON.parse(completion.choices[0].message.content || '{}')
-  if (!TICKET_CATEGORIES.includes(data.category) || !TICKET_PRIORITIES.includes(data.priority)) {
+  const data: { category?: TicketCategory; priority?: TicketPriority } = JSON.parse(completion.choices[0].message.content || '{}')
+  const { category, priority } = data
+  if (!category || !priority || !TICKET_CATEGORIES.includes(category) || !TICKET_PRIORITIES.includes(priority)) {
     throw new Error('resposta da IA fora do formato')
   }
-  return { category: data.category, priority: data.priority }
+  return { category, priority }
 }
 
 export async function classifyTicket(ticket: TicketInput): Promise<Classification> {
-  if (process.env.AI_MODE === 'openai') {
+  if (aiConfig().AI_MODE === 'openai') {
     return classifyWithOpenAI(ticket)
   }
   return classifyFake(ticket)
 }
 
 export async function suggestReply(input: { customerName: string; title: string; description: string }) {
-  if (process.env.AI_MODE === 'openai') {
+  if (aiConfig().AI_MODE === 'openai') {
     const completion = await openaiClient().chat.completions.create({
       model: MODEL,
       messages: [
