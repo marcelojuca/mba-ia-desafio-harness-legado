@@ -1,3 +1,7 @@
 node_modules
 .env
+.env.local
 dist
+
+# estado local de cada cópia (portas, pids, logs, anexos)
+.harness/

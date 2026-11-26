@@ -1,0 +1,23 @@
+{
+  "name": "balcao-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Harness do Balcão: ambiente por cópia, gates e hooks. O código da aplicação fica em api/ e web/.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "up": "bash scripts/up.sh",
+    "down": "bash scripts/down.sh",
+    "gates": "node scripts/gates.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "dependency-cruiser": "18.9.0",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
+    "knip": "6.48.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.74.0"
+  }
+}
