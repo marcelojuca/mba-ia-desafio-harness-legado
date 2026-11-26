@@ -89,6 +89,8 @@ node "$NODE_HELPER" set-env "$ROOT/web/.env.local" - \
   cd "$ROOT/api"
   ./node_modules/.bin/prisma generate > "$LOGS/prisma.log" 2>&1
   ./node_modules/.bin/prisma migrate deploy >> "$LOGS/prisma.log" 2>&1
+  DATABASE_URL="postgresql://balcao:balcao@localhost:$DB_PORT/${DB_NAME}_test" \
+    ./node_modules/.bin/prisma migrate deploy >> "$LOGS/prisma.log" 2>&1  # banco dos testes de integração
   ./node_modules/.bin/tsx --env-file=.env prisma/seed.ts >> "$LOGS/prisma.log" 2>&1  # aqui o tsx é o próprio processo
 ) || { tail -30 "$LOGS/prisma.log"; falha "migrations ou seed falharam (veja $LOGS/prisma.log)"; }
 log "banco migrado e seed carregada"

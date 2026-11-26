@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Gates do Balcão. Uso: `npm run gates` (tudo) ou `npm run gates -- G1 G2` (só essas regras).
+// Gates do Balcão. Uso: `npm run gates` (tudo), `npm run gates -- G1 G2` (só essas regras),
+// `npm run gates -- --verbose` (mostra a saída de todas as ferramentas, mesmo as que passaram).
 // Roda todas as verificações, mesmo quando uma falha, e termina com a lista final:
 // uma linha por violação, "<ID> <arquivo> <detalhe>". Sai com 1 se houver qualquer violação.
 import { spawn } from 'node:child_process'
@@ -157,7 +158,7 @@ const GATES = [
   { nome: 'G10 sem uso (web)', ids: ['G10'], rodar: () => semUso('web') },
 ]
 
-const filtro = process.argv.slice(2).map((a) => a.toUpperCase())
+const filtro = process.argv.slice(2).filter((a) => !a.startsWith('--')).map((a) => a.toUpperCase())
 const escolhidos = filtro.length ? GATES.filter((g) => g.ids.some((id) => filtro.includes(id))) : GATES
 
 const faltando = ['.', 'api', 'web'].filter((p) => !existsSync(join(ROOT, p, 'node_modules')))
@@ -175,7 +176,10 @@ const resultados = await Promise.all(
   }),
 )
 
+// Saída completa só das ferramentas que falharam (ou de todas, com --verbose).
+const verboso = process.argv.includes('--verbose')
 for (const r of resultados) {
+  if (!verboso && !r.falhou && r.violacoes.length === 0) continue
   console.log(`\n===== ${r.nome} (${r.segundos}s) =====`)
   console.log(r.saida.trim() || '(sem saída)')
 }
