@@ -95,7 +95,13 @@ async function dependencias() {
     texto.push(`${v.rule.name}: ${v.from} -> ${v.to}`)
   }
   if (!json) texto.push(saida)
-  return { saida: texto.join('\n') || 'dependency-cruiser: nenhuma violação.', violacoes, falhou: code !== 0 || !json }
+  // Guarda contra configuração que cega as regras: se nenhum import chega a node_modules (ex.: alguém
+  // pôs --exclude node_modules), G4/G6/G7/R2 passariam em silêncio. Isso já aconteceu (docs/incidentes.md).
+  const vePacotes = (json?.modules ?? []).some((m) => m.source.includes('node_modules/'))
+  if (json && !vePacotes) {
+    violacoes.push(['G7', '.dependency-cruiser.cjs', 'o cruiser não viu nenhum pacote npm: regras de pacote estão cegas'])
+  }
+  return { saida: texto.join('\n') || 'dependency-cruiser: nenhuma violação.', violacoes, falhou: code !== 0 || !json || !vePacotes }
 }
 
 async function fonte() {
