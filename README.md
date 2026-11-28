@@ -3,6 +3,8 @@
 Central de chamados da empresa. Clientes abrem chamados, uma IA faz a triagem (categoria e prioridade)
 em segundo plano, atendentes assumem, respondem e resolvem, e o admin acompanha as estatísticas.
 
+Enunciado do desafio: [Full Cycle — Harness em projeto legado](https://plataforma.fullcycle.com.br/courses/a091b0fe-a5c6-4287-a3d3-1ec61defcfd3/413/224/266/conteudos?projeto=70&fase=312).
+
 - `api/`: API em Express + Prisma e o worker de triagem (processo separado).
 - `web/`: front em React + Vite.
 - `blackbox/`: suíte caixa-preta da API (o contrato HTTP).
